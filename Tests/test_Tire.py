@@ -8,18 +8,18 @@ class TestTire(unittest.TestCase):
 
     def test_initialization(self):
         self.assertEqual(self.__tire.getTireCondition(), 100)
-        self.assertEqual(str(self.__tire), "\n(FL) - Condition: 100%. Traveled distance: 0 km. Average tire pressure: 0.0 bars. Average tire temperature: 0.0 °C.")
+        self.assertEqual(str(self.__tire), "\n(FL) - Condition: 100%. Traveled distance: 0 km. Average tire pressure: 2.2 bars. Average tire temperature: 0.0 °C.")
 
     def test_clearDailyData(self):
         self.__tire.addDaily(2, 35, 15)
         self.__tire.clearDailyData()
         
-        self.assertEqual(str(self.__tire), "\n(FL) - Condition: 100%. Traveled distance: 0 km. Average tire pressure: 0.0 bars. Average tire temperature: 0.0 °C.")
+        self.assertEqual(str(self.__tire), "\n(FL) - Condition: 100%. Traveled distance: 0 km. Average tire pressure: 2.2 bars. Average tire temperature: 0.0 °C.")
 
     def test_addDaily(self):
         self.__tire.addDaily(1.8, 30, 100)
         
-        self.assertEqual(str(self.__tire), "\n(FL) - Condition: 100%. Traveled distance: 100 km. Average tire pressure: 1.8 bars. Average tire temperature: 30.0 °C.")
+        self.assertEqual(str(self.__tire), "\n(FL) - Condition: 100%. Traveled distance: 100 km. Average tire pressure: 2.0 bars. Average tire temperature: 30.0 °C.")
 
     def test_reduceTireCondition(self):
         self.__tire.addDaily(2.8, 30, 40)

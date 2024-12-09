@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Tire:
-    def __init__(self, position: str, initialPressure: float, tireLife: int, condition: int = 100): 
+    def __init__(self, position: str, initialPressure: float, tireLife: int, condition: float = 100): 
         self.__position = position
         self.__initialPressure = initialPressure
         self.__tireLife = tireLife
@@ -14,6 +14,8 @@ class Tire:
         self.__dailyTemp = []
         self.__dailyPressure = []
         self.__dailyDistance = 0
+
+        self.__dailyPressure.append(self.__initialPressure)
 
     def reduceTireCondition(self, avgDailyAmbientTemp: float):
         coef = .0
