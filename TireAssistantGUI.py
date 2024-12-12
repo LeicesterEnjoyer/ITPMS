@@ -246,8 +246,9 @@ avgDailyDriveTime.place(
     width=62.0,
     height=28.0
 )
-avgDailyDriveTime.config(
-    state="readonly"
+avgDailyDriveTime.insert(
+    index=0,
+    string="2.5"
 )
 avgDailyDriveTime.bind(
     sequence="<Return>",
@@ -502,19 +503,15 @@ canvas.create_text(
 # Functionality
 def buttonPressed():
     initialPressures = {'FL': float(getFLpressure()), 'FR': float(getFRpressure()), 'RR': float(getRRpressure()), 'RL': float(getRLpressure())}
-    unpackedData = []
+    path = getFilePath()
 
-    if getFilePath() == '':
-        csv = CSVmanager("Data/" + getTiresSet() + ".csv")
-        dataGenerator = DataGenerator(getTiresSet(), 2.5, initialPressures)
-        
-        unpackedData = unpackCSVdata(csv.getPath(), initialPressures)
+    if path == '':
+        path = "Data/" + getTiresSet().upper() + ".csv"
+        csv = CSVmanager(path)
+        dataGenerator = DataGenerator(getTiresSet(), float(getAvgDailyDriveTime()), initialPressures)
         csv.writeToCSV(dataGenerator.generateData())
-    
-    if not unpackedData:
-        unpackedData = unpackCSVdata(getFilePath(), initialPressures)
         
-    timeStamp, pressures, conditions, dailyDistance, ambientTemp, dailyDriveTime = unpackedData
+    timeStamp, pressures, conditions, dailyDistance, ambientTemp, dailyDriveTime = unpackCSVdata(path, initialPressures)
     
     setTimeStamp(timeStamp)
     

@@ -2,7 +2,7 @@ import random
 
 
 class DataGenerator:
-    def __init__(self, season: str, avgDailyDrive: int, initialPressures: dict):
+    def __init__(self, season: str, avgDailyDrive: float, initialPressures: dict):
         self.__season = "ALL"
         if season.upper() in ["SUMMER", "WINTER"]:
             self.__season = season.upper()
