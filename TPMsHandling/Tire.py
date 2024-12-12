@@ -32,7 +32,7 @@ class Tire:
         return np.sqrt(np.mean(np.square(data)))
 
     def __calculateAVG(self, data):
-        return float(len(data) > 0 and sum(data) / len(data))
+        return len(data) > 0 and float(sum(data) / len(data))
 
     def addDailyTemp(self, temp: float):
         self.__dailyTemp.append(temp)

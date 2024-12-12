@@ -2,11 +2,12 @@ import random
 
 
 class DataGenerator:
-    def __init__(self, season: str, avgDailyDrive: int):
+    def __init__(self, season: str, avgDailyDrive: int, initialPressures: dict):
         self.__season = "ALL"
         if season.upper() in ["SUMMER", "WINTER"]:
             self.__season = season.upper()
-
+        
+        self.__initialPressures = initialPressures
         self.__avgDailyDrive = avgDailyDrive
         
     def generateData(self):
@@ -19,11 +20,12 @@ class DataGenerator:
         for day in range(1, daysToGenerate + 1):
             dailyDistance = random.randint(7, 45)
 
-            for i in range(self.__avgDailyDrive * 2):
+            for i in range(int(self.__avgDailyDrive * 2)):
                 ambientTemp = random.uniform(ambientTempRange[0], ambientTempRange[1])
                 tireTemp = random.uniform(tireTempRange[0], tireTempRange[1])
             
-                for tire in ["FL", "FR", "RR", "RL"]:
-                    data.append([str(day) + '.' + str(i + 1), tire, random.uniform(2.17, 2.23), tireTemp, dailyDistance, ambientTemp])
+                for position in ["FL", "FR", "RR", "RL"]:
+                    pressure = random.uniform(self.__initialPressures[position] - 0.03, self.__initialPressures[position] + 0.03)
+                    data.append([str(day) + '.' + str(i + 1), position, pressure, tireTemp, dailyDistance, ambientTemp])
         
         return data

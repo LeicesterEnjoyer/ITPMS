@@ -53,6 +53,9 @@ class Tires:
 
     def getTires(self):
         return self.__tires
+    
+    def getConditions(self):
+        return {condition: tire.getTireCondition() for condition, tire in self.__tires.items()}
 
     def __str__(self):
         tires = f'{self.__tiresSet} tires: '

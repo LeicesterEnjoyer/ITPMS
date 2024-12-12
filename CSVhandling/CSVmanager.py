@@ -13,3 +13,6 @@ class CSVmanager:
         with open(self.__path, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
+
+    def getPath(self):
+        return self.__path

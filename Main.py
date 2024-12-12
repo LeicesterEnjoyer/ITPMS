@@ -11,7 +11,7 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
-    csv = CSVmanager("data/SummerTiresData.csv")
-    dataGenerator = DataGenerator("SUMMER", 2)
+    csv = CSVmanager("Data/WINTER.csv")
+    dataGenerator = DataGenerator("WINTER", 2, {"FL": 2.2, "FR": 2.2, "RR": 2.2, "RL": 2.2})
 
     csv.writeToCSV(dataGenerator.generateData())
