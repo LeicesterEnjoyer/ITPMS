@@ -10,6 +10,66 @@ from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
 
+# Functionality
+from CSVhandling.DataGenerator import DataGenerator
+from CSVhandling.CSVmanager import CSVmanager
+from TPMsHandling.Tires import Tires
+
+def calculateAVG(data):
+    return len(data) > 0 and float(sum(data) / len(data))
+
+def unpackCSVdata(path: str, initialPressures: dict):
+    csv = CSVmanager(path)
+    data = csv.readFromCSV()
+
+    tires = Tires(getTiresSet(), initialPressures)
+
+    day = 1
+    allAmbientTemps = []
+    dailyDistances = []
+    dailyDriveTimes = []
+    pressures = {'FL': [], 'FR': [], 'RR': [], 'RL': []}
+
+    dailyDriveTime = 0
+    ambientTemps = set()
+
+    def calcForPreviousDay():
+        nonlocal tires
+        nonlocal dailyDistances
+        nonlocal allAmbientTemps
+        nonlocal ambientTemps
+        nonlocal dailyDriveTimes
+        nonlocal dailyDriveTime
+
+        tires.reduceTiresCondition(calculateAVG(ambientTemps))
+        tires.clearTiresData()
+
+        dailyDistances.append(int(row[4]))
+
+        allAmbientTemps.extend(ambientTemps)
+        ambientTemps.clear()
+
+        dailyDriveTimes.append(dailyDriveTime / 2)
+        dailyDriveTime = 0
+
+    for row in data[1:]:
+        if int(row[0].split('.')[0]) != day:
+            calcForPreviousDay()
+            day += 1
+
+        tires.addValues(row[1], float(row[2]), float(row[3]), int(row[4]))
+        
+        dailyDriveTime = max(dailyDriveTime, int(row[0].split('.')[1]))
+        pressures[row[1]].append(float(row[2]))
+        ambientTemps.add(float(row[5]))
+    
+    calcForPreviousDay()
+    tires.saveData()
+
+    pressures = {position: calculateAVG(value) for position, value in pressures.items()}
+    return day, pressures, tires.getConditions(), calculateAVG(dailyDistances), calculateAVG(allAmbientTemps), calculateAVG(dailyDriveTimes)
+# 
+
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"assets")
 
@@ -439,13 +499,47 @@ canvas.create_text(
     font=("Inter SemiBold", 20 * -1)
 )
 
+# Functionality
+def buttonPressed():
+    initialPressures = {'FL': float(getFLpressure()), 'FR': float(getFRpressure()), 'RR': float(getRRpressure()), 'RL': float(getRLpressure())}
+    unpackedData = []
+
+    if getFilePath() == '':
+        csv = CSVmanager("Data/" + getTiresSet() + ".csv")
+        dataGenerator = DataGenerator(getTiresSet(), 2.5, initialPressures)
+        
+        unpackedData = unpackCSVdata(csv.getPath(), initialPressures)
+        csv.writeToCSV(dataGenerator.generateData())
+    
+    if not unpackedData:
+        unpackedData = unpackCSVdata(getFilePath(), initialPressures)
+        
+    timeStamp, pressures, conditions, dailyDistance, ambientTemp, dailyDriveTime = unpackedData
+    
+    setTimeStamp(timeStamp)
+    
+    setFLpressure(round(pressures['FL'], 3))
+    setFRpressure(round(pressures['FR'], 3))
+    setRRpressure(round(pressures['RR'], 3))
+    setRLpressure(round(pressures['RL'], 3))
+
+    setFLcondition(round(conditions['FL'], 2))
+    setFRcondition(round(conditions['FR'], 2))
+    setRRcondition(round(conditions['RR'], 2))
+    setRLcondition(round(conditions['RL'], 2))
+
+    setAvgDailyDistance(round(dailyDistance, 2))
+    setAvgAmbientTemp(round(ambientTemp, 2))
+    setAvgDailyDriveTime(round(dailyDriveTime, 1))
+#
+
 button_image = PhotoImage(
     file=relative_to_assets("button.png"))
 button = Button(
     image=button_image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("Button pressed!"),
+    command=buttonPressed,
     relief="flat"
 )
 button.place(
