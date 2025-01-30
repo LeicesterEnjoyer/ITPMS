@@ -45,6 +45,6 @@ class TestTire(unittest.TestCase):
 
     def test_addDailyDistance(self):
         self.__tire.setDailyDistance(50)
-        self.__tire.setDailyDistance(40)  # Should not decrease.
+        self.__tire.setDailyDistance(40) # Should not decrease.
         
         self.assertEqual(self.__tire._Tire__dailyDistance, 50)
