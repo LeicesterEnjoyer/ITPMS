@@ -67,10 +67,26 @@ void setupRF() {
   radio.stopListening();
 }
 
+void sleepRF() {
+  radio.powerDown();
+}
+
+void wakeRF() {
+  radio.powerUp();
+}
+
 void setupPressure() {
   writeRegister(PRESSURE_ADDR, 0x20, (1 << 6)); // Enable full scale mode (4060 hPa).
   writeRegister(PRESSURE_ADDR, 0x10, (1 << 4)); // Configure the pressure sensor with AVG = 4 and ODR = 4 Hz.
   writeRegister(PRESSURE_ADDR, 0x5F, 0x00); // Disable AH1/QVAR1 and AH2/QVAR2.
+}
+
+void sleepPressure() {
+  writeRegister(PRESSURE_ADDR, 0x10, 0); // Writing '0000' in ODR configures the pressure sensor to power-down mode.
+}
+
+void wakePressure() {
+  writeRegister(PRESSURE_ADDR, 0x10, (1 << 4)); // Configure the pressure sensor with AVG = 4 and ODR = 4 Hz.
 }
 
 void setupACC() {
@@ -107,6 +123,12 @@ byte readRegister(const byte address, const byte reg) {
   
   Wire.end();
   return result;
+}
+
+void sleepTPMs() {
+  sleepRF();
+  sleepPressure();
+  sleepMCU();
 }
 
 void getPressure() {
@@ -165,7 +187,7 @@ void OVFcorrection(uint32_t *current_ms, uint32_t *keepAlive_ms, uint32_t *prevT
   *current_ms = *keepAlive_ms = *prevTemp_ms = *prevPressure_ms = *prevINT_ms = 0;
 }
 
-void interruptCheck(uint32_t current_ms, uint32_t *prevINT_ms) {
+void interruptCheck(const uint32_t current_ms, uint32_t *prevINT_ms) {
   if (INTtrigger <= prevINTtrigger) 
     return;
   
@@ -183,7 +205,7 @@ void setup() {
   setupPressure();
   setupACC();
   
-  sleepMCU();
+  sleepTPMs();
 }
 
 void loop() {
@@ -191,10 +213,12 @@ void loop() {
   current_ms = millis();
 
   OVFcorrection(&current_ms, &keepAlive_ms, &prevTemp_ms, &prevPressure_ms, &prevINT_ms);
-  interruptCheck(current_ms, &prevINT_ms);
-
-  if (current_ms - prevINT_ms >= PREV_INT0_MS)
-    sleepMCU();
+  
+  if (!hasToInit) {
+    interruptCheck(current_ms, &prevINT_ms);
+    if (current_ms - prevINT_ms >= PREV_INT0_MS)
+        sleepTPMs();
+  }
 
   if (hasToInit)
     sendIdentity();
@@ -228,12 +252,14 @@ void loop() {
 }
 
 void sendIdentity() {
+  wakeRF();
+
   if (!radio.write(&identity, sizeof(identity))
       || !radio.isAckPayloadAvailable()) 
     return;
   
   if (radio.getDynamicPayloadSize() == 1) {
-    sleepMCU();
+    sleepTPMs();
     return;
   }
 
@@ -243,15 +269,19 @@ void sendIdentity() {
   radio.openWritingPipe(identity.address);
 
   hasToInit = false;
+  sleepRF();
   return;
 }
 
 void sendPayload() {
+  wakeRF();
+
   if (!radio.write(&payload, sizeof(payload))
       || !radio.isAckPayloadAvailable()) 
     return;
 
   radio.read(&ack, radio.getDynamicPayloadSize());
 
+  sleepRF();
   return;
 }
