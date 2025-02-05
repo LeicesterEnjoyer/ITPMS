@@ -23,8 +23,6 @@
 - **🎯 Hall Effect Initialization**  
     Quick pairing with magnetic TPMS initializing pen.
 
----
-
 ## 🛠 How It Works
 
 ### Installation & Activation
@@ -41,8 +39,6 @@
 | > 5% pressure deviation from last read    | Instant RF alert to ECU        |
 | > 5% temperature deviation from last read | Instant RF alert to ECU        |
 | 10s without any significant changes       | Keep-alive ping                |
-
----
 
 ## 🔍 Code library
 
