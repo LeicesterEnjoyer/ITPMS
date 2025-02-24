@@ -5,7 +5,7 @@
 ## 🔥 Key Features
 
 - **🏋️ Ultra-Compact Design**  
-    Minimal weight (<20g) ensures compatibility with 99% of tires without affecting balance.
+    Minimal weight (<30g) ensures compatibility with most tires without affecting balance.
 
 - **📡 Autonomous Operation**  
     Wakes up via accelerometer motion detection → close to none battery drain when stationary.
